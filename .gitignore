@@ -1,0 +1,10 @@
+# 全局忽略所有名字叫 bin 的文件夹
+**/bin/
+# 如果你还想顺带忽略一些常见编译、python缓存，加上下面这些
+*.exe
+*.o
+*.obj
+*.out
+__pycache__/
+*.pyc
+.DS_Store
