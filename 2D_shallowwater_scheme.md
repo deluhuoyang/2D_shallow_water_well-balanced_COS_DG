@@ -3,48 +3,49 @@
 ## 1. well-balanced格式
 
 二维浅水波方程：
+
 $$
-\begin{cases}
-h_t + (hu)_x + (hv)_y = 0, \\
-(hu)_t + \left(hu^2+\frac{1}{2}gh^2\right)_x + (huv)_y = -ghb_x, \\
-(hv)_t + (huv)_x + \left(hv^2+\frac{1}{2}gh^2\right)_y = -ghb_y,
+\begin{cases} 
+h_t + (hu)_x + (hv)_y = 0, \\ 
+(hu)_t + \left(hu^2+\frac{1}{2}gh^2\right)_x + (huv)_y = -ghb_x, \\ 
+(hv)_t + (huv)_x + \left(hv^2+\frac{1}{2}gh^2\right)_y = -ghb_y, 
 \end{cases}
 $$
 
 其中 \(h\) 为水深，\((u,v)\) 为流速，\(b(x,y)\) 为底部高程，\(g\) 为重力加速度。
 
-为便于表述，我们将该方程记作
-$$
-U_t + \boldsymbol{f}(U)_x + \boldsymbol{g}(U)_y = s(h,b),
-$$
-其中 $U = (h,hu,hv)^T$，$\boldsymbol{f}(U),\boldsymbol{g}(U)$ 为通量。
+为便于表述，我们将该方程记作：
 
-我们将计算区域离散为单元
 $$
-I_{i,j} = \left[x_{i-\frac12},x_{i+\frac12}\right] \times \left[y_{j-\frac12},y_{j+\frac12}\right].
+U_t + \boldsymbol{f}(U)_x + \boldsymbol{g}(U)_y = s(h,b)
 $$
 
-为简化起见，采用均匀网格，记 $\lambda_1=\Delta t/\Delta x,\ \lambda_2=\Delta t/\Delta y$。在每个单元 $I_{i,j}$ 内，解空间与检验空间选取次数至多为 $k$ 的二元多项式空间。数值近似解为分片多项式，仍记为 $U$；底坡 $b$ 投影到有限元空间后的结果也仍记作 $b$。
+其中 \(U = (h,hu,hv)^T\)，\(\boldsymbol{f}(U), \boldsymbol{g}(U)\) 为通量。
 
-与一维的情形理由相同，二维DG方法表述为：
+我们将计算区域离散为单元 \(I_{ij} = \left[x_{i-\frac{1}{2}},x_{i+\frac{1}{2}}\right] \times \left[y_{j-\frac{1}{2}},y_{j+\frac{1}{2}}\right]\)。
+
+为简化起见，采用均匀网格，记 \(\lambda_1 = \Delta t / \Delta x\)，\(\lambda_2 = \Delta t / \Delta y\)。在每个单元 \(I_{ij}\) 内，解空间与检验空间选取次数至多为 \(k\) 的二元多项式空间。数值近似解为分片多项式，仍记为 \(U\)；底坡 \(b\) 投影到有限元空间后的结果也仍记作 \(b\)。
+
+与一维的情形理由相同，二维 DG 方法表述为：
+
 $$
-\begin{aligned}
-\int_{I_{ij}} \frac{U^{n+1}-U^n}{\Delta t} v \,dxdy
-&-\int_{I_{ij}} f(U^n)\partial_x v \,dxdy
-+\int_{y_{j-\frac12}}^{y_{j+\frac12}} \hat{f}_{i+\frac12} v\left(x_{i+\frac12}^-,y\right) dy \\
-&-\int_{y_{j-\frac12}}^{y_{j+\frac12}} \hat{f}_{i-\frac12} v\left(x_{i-\frac12}^+,y\right) dy
--\int_{I_{ij}} g(U^n)\partial_y v \,dxdy \\
-&+\int_{x_{i-\frac12}}^{x_{i+\frac12}} \hat{g}_{j+\frac12} v\left(x,y_{j+\frac12}^-\right) dx
--\int_{x_{i-\frac12}}^{x_{i+\frac12}} \hat{g}_{j-\frac12} v\left(x,y_{j-\frac12}^+\right) dx \\
-&=\int_{I_{ij}} s(h^n,b) v \,dxdy,
+\begin{aligned} 
+\int_{I_{ij}} \frac{U^{n+1}-U^n}{\Delta t} v \,dxdy &- \int_{I_{ij}} f(U^n)\partial_x v \,dxdy +\int_{y_{j-\frac{1}{2}}}^{y_{j+\frac{1}{2}}} \hat{f}_{i+\frac{1}{2}} v\left(x_{i+\frac{1}{2}}^-,y\right) dy \\ 
+&- \int_{y_{j-\frac{1}{2}}}^{y_{j+\frac{1}{2}}} \hat{f}_{i-\frac{1}{2}} v\left(x_{i-\frac{1}{2}}^+,y\right) dy - \int_{I_{ij}} g(U^n)\partial_y v \,dxdy \\ 
+&+ \int_{x_{i-\frac{1}{2}}}^{x_{i+\frac{1}{2}}} \hat{g}_{j+\frac{1}{2}} v\left(x,y_{j+\frac{1}{2}}^-\right) dx - \int_{x_{i-\frac{1}{2}}}^{x_{i+\frac{1}{2}}} \hat{g}_{j-\frac{1}{2}} v\left(x,y_{j-\frac{1}{2}}^+\right) dx \\ 
+&= \int_{I_{ij}} s(h^n,b) v \,dxdy,
 \end{aligned}
 $$
 
-其中 $\hat{f}_{i+\frac12}(y)=F\left(U\left(x_{i+\frac12}^-,y,t\right),U\left(x_{i+\frac12}^+,y,t\right)\right)$，采用Lax-Friedrichs通量：
+其中 \(\hat{f}_{i+\frac{1}{2}}(y) = F\left(U\left(x_{i+\frac{1}{2}}^-,y,t\right), U\left(x_{i+\frac{1}{2}}^+,y,t\right)\right)\)，采用 Lax-Friedrichs 通量：
 
-$F(a_1,a_2)=\frac12\big(f(a_1)+f(a_2)-\alpha_1(a_2-a_1)\big),$
+$
+F(a_1, a_2) = \frac{1}{2} \left( f(a_1) + f(a_2) - \alpha_1 (a_2 - a_1) \right),
+$
 
-$\alpha_1=\max\left(|u|+\sqrt{gh}\right),$
+$
+\alpha_1 = \max \left( |u| + \sqrt{gh} \right),
+$
 
 且 $\hat{g}_{j+\frac12}(x)=G\left(U\left(x,y_{j+\frac12}^-\right),U\left(x,y_{j+\frac12}^+,t\right)\right)$，其中
 
